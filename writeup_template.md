@@ -7,19 +7,16 @@ This project consists of a simple python script (Jupiter notebook) to detect lan
 
 The main goals of this project is to develop a sequence of operations (pipeline) that gets as input a raw image  and outputs an annotate image where the lane lines are marked. Figures 1 and 2 depict examples of the input and output images.
 
+[//]: # (Image References)
+[image1]: ./test_images/solidWhiteRight.jpg "Figure 1. Input"
+[image2]: ./test_images/copy_solidWhiteRight.jpg "Figure 2. Output"
+[image3]: ./test_images/part_solidWhiteRight.jpg "Figure 3. Partial Image with Lines"
+
 ---
 
-[//]: # (Image References)
-
 ####Input Imag
-[image1]: ./test_images/solidWhiteRight.jpg "Figure 1. Input"
-####Output Image
-[image2]: ./test_images/copy_solidWhiteRight.jpg "Figure 2. Output"
-####Partial Image
-[image2]: ./test_images/part_solidWhiteRight.jpg "Figure 3. Partial Image with Lines"
-
-
 ![alt text][image1]
+####Output Image
 ![alt text][image2]
 
 ---
@@ -30,23 +27,29 @@ The sequence of operations is presented at Section 2. Possible shortcoming for t
 
 The process to identify line lanes and draw it over the original image can be divided into a sequence of operations that manipulates the input image in order to extract its key features. This pipeline of operations is implemented at the "add_lines" function (see notebook) and its operations are presented below following the execution order and highlighting which helper function the operation is part of.
 
-####1.Color Selection and Gray scale conversion: the helper function grayscale apply a color filter followed by a gray scale conversion. The color filter threshold is adjusted to filter dark colors but keep bright colors such as yellow and white. After that, the image color depth RGB is downscaled to Gray scale.
+####1.Color Selection and Gray scale conversion: 
+The helper function grayscale apply a color filter followed by a gray scale conversion. The color filter threshold is adjusted to filter dark colors but keep bright colors such as yellow and white. After that, the image color depth RGB is downscaled to Gray scale.
 
-####2.Gaussian Smoothing: as a prior step before applying the Candy Transform, the pipeline smooths the image using Gaussian smoothing with five kernels at the gaussian_bluer helper function.
+####2.Gaussian Smoothing: 
+As a prior step before applying the Candy Transform, the pipeline smooths the image using Gaussian smoothing with five kernels at the gaussian_bluer helper function.
 
-####3.Canny Transform: the helper function canny performs the canny transformation to detect edges at the image. Low and High thresholds are set empirically as 80 and 100, respectively.
+####3.Canny Transform: 
+The helper function canny performs the canny transformation to detect edges at the image. Low and High thresholds are set empirically as 80 and 100, respectively.
 
-####4.Region Mask: removes non interesting areas of the image using the geometric form trapezium, all pixel outside of the trapezium are set to black. This operations is coded at the region_of_interest helper function.
+####4.Region Mask: 
+It temoves non interesting areas of the image using the geometric form trapezium, all pixel outside of the trapezium are set to black. This operations is coded at the region_of_interest helper function.
 
-####5.Hough Transform and Line drawing: the helper function hough_lines applies the hough transform and draws the lines. The parameters for the hough transform are also set empirically. The line drawing follows a straightforward implementation where first, for both sides, we pick two points for each line. The key point is to choose the pair of points that best describes the slope and constant of the lane line. For this, we have used the idea of choosing the closest and farthest point from the bottom. After that, for each line, we compute the line function (slope and constant) in order to estimate new points that best fit the lane. With the line function in hand, we consider the first point of the line to have y equal to the image height and x is obtained from the line function; for the second point we use the farthest y we have found previously and x is also obtained from the line function. This procedure is done for both sides, left and right lines. Figure 3. depicts an example of a image with lines.
+####5.Hough Transform and Line drawing: 
+The helper function hough_lines applies the hough transform and draws the lines. The parameters for the hough transform are also set empirically. The line drawing follows a straightforward implementation where first, for both sides, we pick two points for each line. The key point is to choose the pair of points that best describes the slope and constant of the lane line. For this, we have used the idea of choosing the closest and farthest point from the bottom. After that, for each line, we compute the line function (slope and constant) in order to estimate new points that best fit the lane. With the line function in hand, we consider the first point of the line to have y equal to the image height and x is obtained from the line function; for the second point we use the farthest y we have found previously and x is also obtained from the line function. This procedure is done for both sides, left and right lines. Figure 3. depicts an example of a image with lines.
 
 ---
-
+####Partial Image
 ![alt text][image3]
 
 ---
 
-####6.Stack Lines: The lines are stacked over the original image at the last step of the pipeline.
+####6.Stack Lines: 
+The lines are stacked over the original image at the last step of the pipeline.
 
 ###2. Shortcomings
 
