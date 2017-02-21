@@ -1,47 +1,58 @@
+
 #**Finding Lane Lines on the Road** 
 
-##Writeup Template
+###1. Description
 
-###You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
+This project consists of a simple python script (Jupiter notebook) to detect lane lines from an image for self-driving purpose. It uses Image Recognition techniques to identify lane lines and draw it over the original image. The script itself can work over one or a sequence of images (i.e. video).
+
+The main goals of this project is to develop a sequence of operations (pipeline) that gets as input a raw image  and outputs an annotate image where the lane lines are marked. Figures 1 and 2 depict examples of the input and output images.
 
 ---
-
-**Finding Lane Lines on the Road**
-
-The goals / steps of this project are the following:
-* Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
-
 
 [//]: # (Image References)
 
-[image1]: ./examples/grayscale.jpg "Grayscale"
+####Input Imag
+[image1]: ./test_images/solidWhiteRight.jpg "Figure 1. Input"
+####Output Image
+[image2]: ./test_images/copy_solidWhiteRight.jpg "Figure 2. Output"
+####Partial Image
+[image2]: ./test_images/part_solidWhiteRight.jpg "Figure 3. Partial Image with Lines"
+
+
+![alt text][image1]
+![alt text][image2]
 
 ---
 
-### Reflection
+The sequence of operations is presented at Section 2. Possible shortcoming for the techniques used and improvements are presented at Sections 3 and 4, respectively.
 
-###1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+###1. Pipeline: Image Manipulation 
 
-My pipeline consisted of 5 steps. First, I converted the images to grayscale, then I .... 
+The process to identify line lanes and draw it over the original image can be divided into a sequence of operations that manipulates the input image in order to extract its key features. This pipeline of operations is implemented at the "add_lines" function (see notebook) and its operations are presented below following the execution order and highlighting which helper function the operation is part of.
 
-In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
+####1.Color Selection and Gray scale conversion: the helper function grayscale apply a color filter followed by a gray scale conversion. The color filter threshold is adjusted to filter dark colors but keep bright colors such as yellow and white. After that, the image color depth RGB is downscaled to Gray scale.
 
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
+####2.Gaussian Smoothing: as a prior step before applying the Candy Transform, the pipeline smooths the image using Gaussian smoothing with five kernels at the gaussian_bluer helper function.
 
-![alt text][image1]
+####3.Canny Transform: the helper function canny performs the canny transformation to detect edges at the image. Low and High thresholds are set empirically as 80 and 100, respectively.
+
+####4.Region Mask: removes non interesting areas of the image using the geometric form trapezium, all pixel outside of the trapezium are set to black. This operations is coded at the region_of_interest helper function.
+
+####5.Hough Transform and Line drawing: the helper function hough_lines applies the hough transform and draws the lines. The parameters for the hough transform are also set empirically. The line drawing follows a straightforward implementation where first, for both sides, we pick two points for each line. The key point is to choose the pair of points that best describes the slope and constant of the lane line. For this, we have used the idea of choosing the closest and farthest point from the bottom. After that, for each line, we compute the line function (slope and constant) in order to estimate new points that best fit the lane. With the line function in hand, we consider the first point of the line to have y equal to the image height and x is obtained from the line function; for the second point we use the farthest y we have found previously and x is also obtained from the line function. This procedure is done for both sides, left and right lines. Figure 3. depicts an example of a image with lines.
+
+---
+
+![alt text][image3]
+
+---
+
+####6.Stack Lines: The lines are stacked over the original image at the last step of the pipeline.
+
+###2. Shortcomings
+
+Possible shortcomings may arise for different situations such as image illumination, type of the road, if it is raining, snowing, etc. This problem is related to the parameters used for some of the operations of the pipeline, i.e. the parameters used for the canny and the houg transform. These parameters are set empirically and the results obtained are strongly tied to the nature of images used, in other words, the results depends that the image to be analyzed are similar to the ones used to set these parameters. Becuase of this, I believe neural networks are better suited for this type of problem.
 
 
-###2. Identify potential shortcomings with your current pipeline
+###3. Improvements
 
-
-One potential shortcoming would be what would happen when ... 
-
-Another shortcoming could be ...
-
-
-###3. Suggest possible improvements to your pipeline
-
-A possible improvement would be to ...
-
-Another potential improvement could be to ...
+A possible improvement should be to work a better color filter to avoid light gray without removing the yellow lanes. The color filter used failed to remove the light gray colors, resulting in some errors for the "challenge" video. Another improvement should be to use small segments of lines instead of only one line per side, allowing a more natural draw for corners. Finally, I believe that using neural networks would greatly improve the results.
